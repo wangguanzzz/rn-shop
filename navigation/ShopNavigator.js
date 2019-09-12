@@ -15,7 +15,13 @@ const ProdcutsNavigator = createStackNavigator(
       headerStyle: {
         backgroundColor: Colors.primary
       },
-      headerTintColor: "white"
+      headerTintColor: "white",
+      headerTitleStyle: {
+        fontFamily: "open-sans-bold"
+      },
+      headerBackTitleStyle: {
+        fontFamily: "open-sans"
+      }
     }
   }
 );
