@@ -23,6 +23,7 @@ const EditProductScreen = props => {
   );
 
   const [title, setTitle] = useState(editedProduct ? editedProduct.title : "");
+  const [titleIsValid, setTitleIsValid] = useState(false);
   const [imageUrl, setImageUrl] = useState(
     editedProduct ? editedProduct.imageUrl : ""
   );
@@ -32,6 +33,11 @@ const EditProductScreen = props => {
   );
 
   const submitHandler = useCallback(() => {
+    if (!titleIsValid) {
+      Alert.alert("wrong input", "check again", [{ text: "ok" }]);
+      return;
+    }
+
     if (editedProduct) {
       dispatch(
         productsActions.updateProduct(prodId, title, description, imageUrl)
@@ -42,12 +48,20 @@ const EditProductScreen = props => {
       );
     }
     props.navigation.goBack();
-  }, [dispatch, prodId, title, description, imageUrl, price]);
+  }, [dispatch, prodId, title, description, imageUrl, price, titleIsValid]);
 
   useEffect(() => {
     props.navigation.setParams({ submit: submitHandler });
   }, [submitHandler]);
 
+  const titleChangeHandler = text => {
+    if (text.trim().length === 0) {
+      setTitleIsValid(false);
+    } else {
+      setTitleIsValid(true);
+    }
+    setTitle(text);
+  };
   return (
     <ScrollView>
       <View style={styles.form}>
@@ -56,8 +70,9 @@ const EditProductScreen = props => {
           <TextInput
             style={styles.input}
             value={title}
-            onChangeText={text => setTitle(text)}
+            onChangeText={titleChangeHandler}
           />
+          {!titleIsValid && <Text>Please enter a valid title</Text>}
         </View>
         <View style={styles.formControl}>
           <Text style={styles.label}> Image Url</Text>
