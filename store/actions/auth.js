@@ -40,7 +40,14 @@ export const login = (email, password) => {
       }
     );
     if (!response.ok) {
-      throw new Error("something went wrong");
+      // throw new Error("something went wrong");
+      const errorResData = await response.json();
+      const errorId = errorResData.error.message;
+      let message = "something went wrong";
+      if (errorId === "EMAIL_NOT_FOUND") {
+        message = "this email could not be found";
+      }
+      throw new Error(message);
     }
 
     const resData = await response.json();

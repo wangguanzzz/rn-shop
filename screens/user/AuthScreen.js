@@ -1,10 +1,12 @@
-import React, { useReducer, useCallback, useState } from "react";
+import React, { useReducer, useCallback, useState, useEffect } from "react";
 import {
   StyleSheet,
   ScrollView,
   View,
   KeyboardAvoidingView,
-  Button
+  Button,
+  ActivityIndicator,
+  Alert
 } from "react-native";
 import Input from "../../components/UI/Input";
 import Card from "../../components/UI/Card";
@@ -40,8 +42,17 @@ const formReducer = (state, action) => {
 
 const AuthScreen = props => {
   const [isSignup, setIsSignup] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState();
+
   const dispatch = useDispatch();
-  const authHandler = () => {
+
+  useEffect(() => {
+    if (error) {
+      Alert.alert("An Error occurred", error, [{ text: "Okay" }]);
+    }
+  }, [error]);
+  const authHandler = async () => {
     let action;
     if (isSignup) {
       action = authActions.signup(
@@ -54,7 +65,16 @@ const AuthScreen = props => {
         formState.inputValues.password
       );
     }
-    dispatch(action);
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      await dispatch(action);
+    } catch (err) {
+      setError(err.message);
+    }
+
+    setIsLoading(false);
   };
   const [formState, dispatchFormState] = useReducer(formReducer, {
     inputValues: {
@@ -115,11 +135,16 @@ const AuthScreen = props => {
                 initialValue=""
               />
             </View>
-            <Button
-              title={isSignup ? "Signup" : "login"}
-              color={Colors.primary}
-              onPress={authHandler}
-            />
+            {isLoading ? (
+              <ActivityIndicator size="large" />
+            ) : (
+              <Button
+                title={isSignup ? "Signup" : "login"}
+                color={Colors.primary}
+                onPress={authHandler}
+              />
+            )}
+
             <Button
               title={`Switch to ${isSignup ? "login" : "signup"}`}
               color={Colors.accent}
