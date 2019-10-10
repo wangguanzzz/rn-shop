@@ -1,4 +1,4 @@
-import React, { useReducer, useCallback } from "react";
+import React, { useReducer, useCallback, useState } from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -39,15 +39,22 @@ const formReducer = (state, action) => {
 };
 
 const AuthScreen = props => {
+  const [isSignup, setIsSignup] = useState(false);
   const dispatch = useDispatch();
-  const signupHandler = () => {
-    console.log("trigger");
-    dispatch(
-      authActions.signup(
+  const authHandler = () => {
+    let action;
+    if (isSignup) {
+      action = authActions.signup(
         formState.inputValues.email,
         formState.inputValues.password
-      )
-    );
+      );
+    } else {
+      action = authActions.login(
+        formState.inputValues.email,
+        formState.inputValues.password
+      );
+    }
+    dispatch(action);
   };
   const [formState, dispatchFormState] = useReducer(formReducer, {
     inputValues: {
@@ -109,14 +116,18 @@ const AuthScreen = props => {
               />
             </View>
             <Button
-              title="login"
+              title={isSignup ? "Signup" : "login"}
               color={Colors.primary}
-              onPress={signupHandler}
+              onPress={authHandler}
             />
             <Button
-              title="Switch to Sign Up"
+              title={`Switch to ${isSignup ? "login" : "signup"}`}
               color={Colors.accent}
-              onPress={() => {}}
+              onPress={() => {
+                setIsSignup(prev => {
+                  return !prev;
+                });
+              }}
             />
           </ScrollView>
         </Card>
